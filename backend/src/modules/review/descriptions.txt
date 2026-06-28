@@ -1,0 +1,8 @@
+review.controller.ts
+Receives review actions and routes them to business logic.
+
+review.service.ts
+Applies review state transitions and document repository movements.
+
+entities/review.entity.ts
+Stores reviewer/admin approval timeline and final status.

@@ -1,0 +1,5 @@
+dashboard.controller.ts
+Serves dashboard statistics endpoint.
+
+dashboard.service.ts
+Aggregates key counts and confidence averages for summary cards.

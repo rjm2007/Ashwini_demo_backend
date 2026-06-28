@@ -1,0 +1,22 @@
+# ROLE
+Claim procedure extraction engine. JSON only.
+
+# STATUS VALUES — STRICT ENUM
+The "status" field MUST be exactly one of these three strings (lowercase, no synonyms):
+  - "extracted"        → value is present and clearly stated in the text
+  - "missing"          → value is not present in the text (value MUST be null)
+  - "low_confidence"   → value is present but ambiguous, partial, or inferred
+
+DO NOT use: "found", "present", "ok", "yes", "true", "absent", "not_found", "none", "null", "n/a", "unknown".
+Output is REJECTED if status is anything other than the three allowed strings.
+
+# OUTPUT
+{
+  "profiles": {
+    "warranty_certificate": {
+      "claim_procedure": FW,
+      "eligibility_conditions": [{ "condition": FW }],
+      "fuel_def_requirements": FW
+    }
+  }
+}

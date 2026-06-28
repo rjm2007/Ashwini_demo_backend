@@ -1,0 +1,85 @@
+{
+  "title": "Volvo Warranty PDF — Production RAG Benchmark (50 questions)",
+  "levels": [
+    {
+      "level": 1,
+      "name": "Simple Retrieval",
+      "questions": [
+        {"id": "Q01", "text": "What is the warranty period for the truck warranty D0001?"},
+        {"id": "Q02", "text": "What mileage limit is mentioned in the standard engine warranty U06?"},
+        {"id": "Q03", "text": "What does coverage code ET460 represent?"},
+        {"id": "Q04", "text": "What is the duration of the AMT transmission warranty U065?"},
+        {"id": "Q05", "text": "What is the mileage coverage for cab corrosion U092?"},
+        {"id": "Q06", "text": "Which coverage mentions HVAC?"},
+        {"id": "Q07", "text": "What is the warranty duration for towing on warrantable engine failures TOW2?"},
+        {"id": "Q08", "text": "What does coverage U030 include?"},
+        {"id": "Q09", "text": "Which warranty has unlimited mileage?"},
+        {"id": "Q10", "text": "What is the coverage duration for rear axle housing U0561?"}
+      ]
+    },
+    {
+      "level": 2,
+      "name": "Metadata / Filtering",
+      "questions": [
+        {"id": "Q11", "text": "List all warranties related to engine components."},
+        {"id": "Q12", "text": "Which warranties are related to transmission failures?"},
+        {"id": "Q13", "text": "Show all warranties that have 72 months duration."},
+        {"id": "Q14", "text": "Which warranties expire in 2024?"},
+        {"id": "Q15", "text": "Which coverages mention bearings or drive shafts?"},
+        {"id": "Q16", "text": "List all cab-related warranties."},
+        {"id": "Q17", "text": "Which warranty has the highest mileage limit?"},
+        {"id": "Q18", "text": "Which warranties are active until 2025?"},
+        {"id": "Q19", "text": "Which coverages are related to frame and crossmembers?"},
+        {"id": "Q20", "text": "Find all EPA17-related warranties."}
+      ]
+    },
+    {
+      "level": 3,
+      "name": "Numerical / Logical",
+      "questions": [
+        {"id": "Q21", "text": "Which warranty lasts longer: U071 or U052?"},
+        {"id": "Q22", "text": "Compare mileage limits between U030 and U071."},
+        {"id": "Q23", "text": "Which has greater coverage: Standard Engine Warranty U06 OR Major Engine Components EPA17 U06A?"},
+        {"id": "Q24", "text": "How many warranties provide coverage above 500,000 miles?"},
+        {"id": "Q25", "text": "Which warranty provides the shortest duration?"},
+        {"id": "Q26", "text": "Which warranty has both month and mileage restrictions?"},
+        {"id": "Q27", "text": "What is the average duration of all engine-related warranties?"},
+        {"id": "Q28", "text": "Which warranty has the largest time coverage but not the largest mileage coverage?"},
+        {"id": "Q29", "text": "Compare TOW2 and TOW4 warranties."},
+        {"id": "Q30", "text": "Which warranties exceed 60 months coverage?"}
+      ]
+    },
+    {
+      "level": 4,
+      "name": "Complex RAG",
+      "questions": [
+        {"id": "Q31", "text": "If a truck has transmission failure after 260,000 miles, which warranties are likely invalid?"},
+        {"id": "Q32", "text": "Which warranties could still apply after 5 years but before 700,000 miles?"},
+        {"id": "Q33", "text": "Compare all drivetrain-related warranties."},
+        {"id": "Q34", "text": "Which warranty combination gives maximum engine protection?"},
+        {"id": "Q35", "text": "Which warranties overlap with powertrain-related failures?"},
+        {"id": "Q36", "text": "If HVAC fails after 50 months, is it still covered?"},
+        {"id": "Q37", "text": "What warranties remain active after standard engine warranty expires?"},
+        {"id": "Q38", "text": "Which warranty categories provide the longest protection overall?"},
+        {"id": "Q39", "text": "If rear axle housing fails after 400,000 miles, is it covered?"},
+        {"id": "Q40", "text": "Which warranties are likely intended for heavy-duty components?"}
+      ]
+    },
+    {
+      "level": 5,
+      "name": "Hallucination Resistance",
+      "questions": [
+        {"id": "Q41", "text": "Does this document mention tire warranty coverage?"},
+        {"id": "Q42", "text": "Is roadside assistance included?"},
+        {"id": "Q43", "text": "Does the warranty cover windshield damage?"},
+        {"id": "Q44", "text": "Is battery replacement covered?"},
+        {"id": "Q45", "text": "Does the document mention fuel injector warranty?"},
+        {"id": "Q46", "text": "What deductible amount is mentioned?"},
+        {"id": "Q47", "text": "Is accidental damage covered?"},
+        {"id": "Q48", "text": "Does the document mention California emissions warranty?"},
+        {"id": "Q49", "text": "What is the customer service phone number?"},
+        {"id": "Q50", "text": "Does this warranty include towing reimbursement amount?"}
+      ]
+    }
+  ]
+}

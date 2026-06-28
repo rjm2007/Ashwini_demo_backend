@@ -1,0 +1,15 @@
+{
+  "title": "Hard production benchmark (10 queries)",
+  "questions": [
+    {"id": "H01", "text": "Which warranties remain active after 5 years but below 700,000 miles?", "must_match_in_chunks": ["Months", "Miles"]},
+    {"id": "H02", "text": "List all warranties related to EPA17 emissions coverage.", "must_match_in_chunks": ["EMISSION", "GHG"]},
+    {"id": "H03", "text": "Show all drivetrain-related warranties ordered by mileage coverage.", "must_match_in_chunks": ["Miles", "driveline"]},
+    {"id": "H04", "text": "What is the coverage duration for U06A?", "must_match_in_chunks": ["U06", "Months"]},
+    {"id": "H05", "text": "Compare U065, U0650, and TOW4 warranties.", "must_match_in_chunks": ["U065", "TOW4"]},
+    {"id": "H06", "text": "Which warranties would become invalid after 800,000 miles?", "must_match_in_chunks": ["Miles"]},
+    {"id": "H07", "text": "Which warranties provide engine-related protection?", "must_match_in_chunks": ["engine", "ENGINE"]},
+    {"id": "H08", "text": "Does the document mention turbocharger warranty?", "must_match_in_chunks": ["turbo", "TURBO"]},
+    {"id": "H09", "text": "If transmission fails after 55 months and 200,000 miles, what warranties could still apply?", "must_match_in_chunks": ["TOW", "transmission"]},
+    {"id": "H10", "text": "Find all warranties related to transmission or driveline systems that remain active after 3 years and exceed 300,000 miles coverage.", "must_match_in_chunks": ["Months", "Miles"]}
+  ]
+}

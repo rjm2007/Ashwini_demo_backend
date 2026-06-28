@@ -1,0 +1,11 @@
+documents.controller.ts
+Exposes upload and document retrieval endpoints.
+
+documents.service.ts
+Uploads files to S3, stores DB records, and publishes processing queue messages.
+
+s3.service.ts
+Wraps S3 operations like upload, move, delete, and signed URL generation.
+
+entities/document.entity.ts
+Maps documents table structure to TypeORM.

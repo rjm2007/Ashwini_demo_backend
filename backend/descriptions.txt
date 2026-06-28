@@ -1,0 +1,44 @@
+src/main.ts
+Starts the NestJS backend server and enables request validation.
+
+src/app.module.ts
+Loads all backend modules and applies JWT auth middleware globally except login.
+
+src/config/database.config.ts
+Builds TypeORM configuration from environment variables.
+
+src/config/aws.config.ts
+Creates shared AWS clients (S3 and SQS) used by upload and processing triggers.
+
+src/common/enums/user-role.enum.ts
+Defines user roles and helper logic for role hierarchy checks.
+
+src/common/decorators/roles.decorator.ts
+Creates the custom @Roles decorator used on protected endpoints.
+
+src/common/guards/roles.guard.ts
+Reads required roles and blocks users who do not have enough privilege.
+
+src/common/middleware/auth.middleware.ts
+Reads JWT from Authorization header and attaches decoded user context to request.
+
+src/database/database.module.ts
+Initializes TypeORM module for PostgreSQL access.
+
+src/database/entities/user.entity.ts
+Maps the users table schema to a TypeORM entity.
+
+src/modules/auth/*
+Handles login and current user APIs with JWT token generation.
+
+src/modules/documents/*
+Handles PDF upload, document listing, signed URL generation, and SQS message publishing.
+
+src/modules/review/*
+Implements reviewer/admin approval workflow and repository transitions.
+
+src/modules/query/*
+Creates chat sessions, stores messages, and calls AI service for answers.
+
+src/modules/dashboard/*
+Provides dashboard statistics aggregated from documents and query messages.

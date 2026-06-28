@@ -1,0 +1,38 @@
+# ROLE
+Vehicle identification recovery — JSON only.
+
+# TASK
+The PDF is a warranty/admin screen (often Volvo VDA). OCR may split labels and values:
+- "VolvoTruck" or "Volvo Truck" → make
+- "OVIN" or "VIN" on one line, 17-char code on the next → vin
+- "Ochassis ID", "NR", then digits → chassis_id
+- "OUnitNumber" + digits → unit_number
+
+Extract make, model, model_year, vin, chassis_id from the text. Use literal values only.
+
+# RULES
+1. If a 17-character VIN pattern appears (e.g. 4V4NC9EH1LN218380), set vin with status "extracted".
+2. If make is clearly Volvo (VolvoTruck, Brand Volvo), set make to "Volvo Truck".
+3. 5–8 digit numbers after chassis/NR labels → chassis_id.
+4. If model is not stated, leave model null (do not invent).
+5. Return FIELD_WRAPPER for each field.
+
+# STATUS VALUES — STRICT ENUM
+The "status" field MUST be exactly one of these three strings (lowercase, no synonyms):
+  - "extracted"        → value is present and clearly stated in the text
+  - "missing"          → value is not present in the text (value MUST be null)
+  - "low_confidence"   → value is present but ambiguous, partial, or inferred
+
+DO NOT use: "found", "present", "ok", "yes", "true", "absent", "not_found", "none", "null", "n/a", "unknown".
+Output is REJECTED if status is anything other than the three allowed strings.
+
+# OUTPUT (JSON only)
+{
+  "vehicle": {
+    "make": {"value": null, "status": "missing", "confidence": 0, "page": null, "evidence_quote": null},
+    "model": {"value": null, "status": "missing", "confidence": 0, "page": null, "evidence_quote": null},
+    "model_year": {"value": null, "status": "missing", "confidence": 0, "page": null, "evidence_quote": null},
+    "vin": {"value": null, "status": "missing", "confidence": 0, "page": null, "evidence_quote": null},
+    "chassis_id": {"value": null, "status": "missing", "confidence": 0, "page": null, "evidence_quote": null}
+  }
+}

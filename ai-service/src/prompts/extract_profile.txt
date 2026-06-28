@@ -1,0 +1,38 @@
+You extract structured warranty document metadata from the first pages of a PDF.
+
+Return ONLY valid JSON with this shape (no markdown):
+{
+  "document": {
+    "document_type": "descriptive label e.g. asset_warranty_coverage_lookup",
+    "source_file": "filename if known",
+    "document_language": "en"
+  },
+  "warranty_program": {
+    "program_id": "stable id slug",
+    "program_name": "human name",
+    "program_type": "OEM Standard / Extended / Service Coverage",
+    "warranty_provider": { "provider_type": "OEM|Third-Party Administrator|Insurer|Dealer", "name": "...", "country": null }
+  },
+  "asset_context": {
+    "asset_class": "Vehicle",
+    "asset_category": "Truck",
+    "unit_number": null,
+    "make": null,
+    "model": null,
+    "vin": null,
+    "chassis_id": null
+  },
+  "applicability": {
+    "asset_class": "Vehicle",
+    "asset_category": null,
+    "manufacturer": null,
+    "make": null,
+    "models": [],
+    "model_years": { "from": null, "to": null, "specific_years": [] },
+    "countries": [],
+    "regions": []
+  },
+  "coverage_region_hint": "description of where coverage rows/tables appear in the document"
+}
+
+Use null for unknown fields. Do not invent VIN or codes not present in the text.

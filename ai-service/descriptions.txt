@@ -1,0 +1,26 @@
+src/main.py
+Starts FastAPI and triggers background SQS consumption.
+
+src/config.py
+Loads environment variables into one settings object.
+
+src/database.py
+Defines shared SQLAlchemy connection.
+
+src/workers/sqs_consumer.py
+Reads messages from SQS queue and routes each to the pipeline orchestrator.
+
+src/workers/pipeline_orchestrator.py
+Runs OCR, metadata extraction, chunking, embeddings, vector upsert, and status updates.
+
+src/services/*
+Contains wrappers for S3, Textract, LLM, embeddings, chunking, and Qdrant.
+
+src/query/*
+Contains query-time intent classification, certified-only retrieval, reasoning, and confidence scoring.
+
+src/api/routes.py
+Exposes health and internal processing/query endpoints.
+
+src/prompts/*
+Stores extraction and query prompts with strict anti-injection rules.

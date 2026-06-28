@@ -1,0 +1,24 @@
+# Node (backend)
+backend/node_modules/
+backend/dist/
+backend/npm-debug.log*
+
+# Python (ai-service)
+ai-service/__pycache__/
+ai-service/**/__pycache__/
+ai-service/*.pyc
+ai-service/.venv/
+ai-service/venv/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

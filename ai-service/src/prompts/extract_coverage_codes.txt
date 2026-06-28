@@ -1,0 +1,40 @@
+# ROLE
+Coverage code table extraction engine. JSON only.
+
+# OBJECTIVE
+Extract EVERY row from the coverage code table in SECTION_TEXT.
+
+# ABSOLUTE RULES (same). Extra rules:
+6. Extract ALL rows including D-codes, ET-codes, TOW-codes, U-codes, Z-codes.
+7. code = exact string from first column (e.g. "U06A", "TOW2", "ET460").
+8. For duration/distance: parse from description text.
+   "24 months/250,000 miles" → duration:"24 months", distance:"250,000 miles"
+   "60 Mo/500K mi/804672 KM" → duration:"60 months", distance:"500K mi / 804,672 KM"
+9. category mapping: D→engine, ET/E→emissions, G→other, HAC→hvac, TOW→towing,
+   U030→structural, U04/U06→engine, U05→driveline, U065/U0650→transmission,
+   U071/U092→cab, U13/U15→emissions, Z→info_only.
+10. start_date / end_date: format as YYYY-MM from the table columns.
+
+# STATUS VALUES — STRICT ENUM
+The "status" field MUST be exactly one of these three strings (lowercase, no synonyms):
+  - "extracted"        → value is present and clearly stated in the text
+  - "missing"          → value is not present in the text (value MUST be null)
+  - "low_confidence"   → value is present but ambiguous, partial, or inferred
+
+DO NOT use: "found", "present", "ok", "yes", "true", "absent", "not_found", "none", "null", "n/a", "unknown".
+Output is REJECTED if status is anything other than the three allowed strings.
+
+# FIELD_WRAPPER: {value, status, confidence, page, evidence_quote}
+
+# OUTPUT
+{
+  "profiles": {
+    "coverage_code_table": {
+      "coverage_codes": [
+        { "code": FW, "description": FW, "category": FW,
+          "duration": FW, "distance": FW, "start_date": FW, "end_date": FW }
+      ]
+    }
+  }
+}
+Return empty FW (value:null, status:"missing") for fields not found.

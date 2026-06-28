@@ -1,0 +1,50 @@
+[
+  {
+    "id": "direct_d0001",
+    "question": "What is warranty code D0001?",
+    "must_match_in_chunks": ["D0001"],
+    "notes": "Direct code lookup"
+  },
+  {
+    "id": "direct_et460",
+    "question": "Tell me about ET460 coverage",
+    "must_match_in_chunks": ["ET460"],
+    "notes": "Direct code lookup"
+  },
+  {
+    "id": "direct_u030",
+    "question": "What are the limits for U030?",
+    "must_match_in_chunks": ["U030"],
+    "notes": "Direct U-code lookup"
+  },
+  {
+    "id": "compare_tow",
+    "question": "Compare TOW2 and TOW4",
+    "must_match_in_chunks": ["TOW2", "TOW4"],
+    "notes": "Comparison — both codes in retrieval"
+  },
+  {
+    "id": "epa17",
+    "question": "What EPA17 engine emission warranties are listed?",
+    "must_match_in_chunks": ["EMISSION", "GHG"],
+    "notes": "Corpus may lack literal EPA17 (OCR); aliases target U06A/GHG rows"
+  },
+  {
+    "id": "expire_2024",
+    "question": "Which warranties expire in 2024?",
+    "must_match_in_chunks": ["Months", "Miles"],
+    "notes": "Table/list question — needs coverage table chunk"
+  },
+  {
+    "id": "five_year_700k",
+    "question": "Which warranties could still apply after 5 years but before 700,000 miles?",
+    "must_match_in_chunks": ["Months", "Miles"],
+    "notes": "Multi-condition — retrieval should surface table rows"
+  },
+  {
+    "id": "transmission_260k",
+    "question": "Transmission failure after 260,000 miles — what TOW coverage applies?",
+    "must_match_in_chunks": ["TOW"],
+    "notes": "Symptom hint should inject TOW2/TOW4"
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WarrantyDocumentSchema",
+  "type": "object",
+  "required": ["document", "warranty_program", "applicability", "coverage_components"],
+  "properties": {
+    "document": {
+      "type": "object",
+      "required": ["document_id", "document_type", "source_file"],
+      "properties": {
+        "document_id": { "type": "string" },
+        "document_type": { "type": "string" },
+        "source_file": { "type": "string" },
+        "document_language": { "type": ["string", "null"] },
+        "extraction_date": { "type": ["string", "null"] },
+        "extraction_confidence": { "type": ["number", "null"] }
+      }
+    },
+    "warranty_program": { "type": "object" },
+    "asset_context": { "type": "object" },
+    "applicability": {
+      "type": "object",
+      "required": ["make"],
+      "properties": {
+        "make": { "type": ["string", "null"] },
+        "models": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "coverage_components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "coverage_id",
+          "coverage_name",
+          "coverage_hierarchy",
+          "coverage_type",
+          "coverage_period",
+          "confidence_score"
+        ],
+        "properties": {
+          "coverage_id": { "type": "string" },
+          "coverage_name": { "type": "string" },
+          "coverage_hierarchy": {
+            "type": "object",
+            "properties": {
+              "system": { "type": ["string", "null"] },
+              "subsystem": { "type": ["string", "null"] },
+              "component_group": { "type": ["string", "null"] },
+              "component": { "type": ["string", "null"] }
+            }
+          },
+          "coverage_type": { "type": "string" },
+          "coverage_period": { "type": "object" },
+          "warranty_type": { "type": ["string", "null"] },
+          "source_reference": { "type": "object" },
+          "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "limit_of_liability": { "type": "object" },
+          "deductible": { "type": "object" },
+          "plan_tier": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "general_conditions": { "type": "array" },
+    "general_exclusions": { "type": "array" },
+    "source_references": { "type": "array" },
+    "extraction_notes": { "type": "array", "items": { "type": "string" } },
+    "rag_metadata": { "type": "object" }
+  }
+}

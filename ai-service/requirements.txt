@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+boto3
+psycopg2-binary
+sqlalchemy
+qdrant-client
+openai
+pypdf
+python-dotenv
+pydantic
+pydantic-settings
+tiktoken
+httpx
+requests
+pymupdf>=1.24.0
+jsonschema>=4.22.0
+python-dateutil

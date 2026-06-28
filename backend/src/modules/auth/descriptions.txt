@@ -1,0 +1,11 @@
+auth.controller.ts
+Accepts login requests and returns current authenticated user context.
+
+auth.service.ts
+Verifies credentials, signs JWT token, and returns profile data.
+
+auth.module.ts
+Wires controller, service, and user repository dependencies.
+
+dto/login.dto.ts
+Validates login payload email and password fields.

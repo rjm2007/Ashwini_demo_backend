@@ -1,0 +1,11 @@
+query.controller.ts
+Exposes session and messaging APIs for authenticated users.
+
+query.service.ts
+Stores messages and calls FastAPI query endpoint to generate assistant answers.
+
+entities/query-session.entity.ts
+Stores chat session metadata for each user.
+
+entities/query-message.entity.ts
+Stores user and assistant message content, evidence, and confidence.
