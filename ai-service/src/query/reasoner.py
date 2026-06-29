@@ -1,7 +1,40 @@
 import json
+import re
 from datetime import date
 from pathlib import Path
 from ..services.llm_service import LlmService
+
+_BARE_CITATION_RE = re.compile(r"(?<!\[)(?<=\s)([1-9])([.,](?:\s|$))")
+_CITATION_WITH_URL_RE = re.compile(r"\[(\d+)\]\(https?://[^)\s]*\)")
+
+
+def _strip_citation_urls(answer: str) -> str:
+    """The model occasionally attaches a fabricated/real URL to a citation
+    (e.g. '[1](http://localhost:3000/documents/...)' instead of plain '[1]').
+    Strip the URL, leaving just the clean bracketed citation number — the
+    citation chip rendering only ever expects '[N]', nothing else."""
+    return _CITATION_WITH_URL_RE.sub(lambda m: f"[{m.group(1)}]", answer)
+
+
+def _fix_unbracketed_citations(answer: str, max_index: int) -> str:
+    """The model is instructed to cite evidence as '[1]', '[2]' etc., but
+    occasionally drops the brackets and writes a bare digit instead (e.g.
+    '...100,000 miles 1.' instead of '...100,000 miles [1].'). This wraps any
+    bare single digit that immediately precedes sentence-ending punctuation
+    AND falls within the valid evidence-index range, leaving every other
+    number in the text untouched (dollar amounts, mileage figures, years,
+    multi-digit numbers, and anything not directly hugging a period/comma
+    never match this pattern)."""
+    if max_index <= 0:
+        return answer
+
+    def _wrap(match: "re.Match[str]") -> str:
+        n = int(match.group(1))
+        if 1 <= n <= max_index:
+            return f"[{match.group(1)}]{match.group(2)}"
+        return match.group(0)
+
+    return _BARE_CITATION_RE.sub(_wrap, answer)
 
 
 def reason_over_evidence(
@@ -42,7 +75,17 @@ def reason_over_evidence(
     if schema_facts:
         lines: list[str] = []
         for fact in schema_facts:
-            lines.append(f"## Vehicle: {fact.get('vehicle') or 'Unknown vehicle'} (doc {fact.get('documentId')})")
+            wtype = fact.get("warranty_type")
+            wtype_label = (
+                " — NON-STANDARD (VIN-specific, layered on top of this vehicle's standard warranty)"
+                if wtype == "non_standard"
+                else " — STANDARD (the baseline warranty for this Make/Model/Year)"
+                if wtype == "standard"
+                else ""
+            )
+            lines.append(
+                f"## Vehicle: {fact.get('vehicle') or 'Unknown vehicle'} (doc {fact.get('documentId')}){wtype_label}"
+            )
             for code in fact.get("coverage_codes", []):
                 limit = " / ".join(
                     part for part in (code.get("duration"), code.get("distance")) if part
@@ -71,7 +114,7 @@ def reason_over_evidence(
         system_message="Reason only from provided evidence and structured coverage facts.",
     )
     try:
-        return json.loads(response)
+        parsed = json.loads(response)
     except json.JSONDecodeError:
         return {
             "answer": "Insufficient certified evidence to answer confidently.",
@@ -84,3 +127,7 @@ def reason_over_evidence(
                 "metadata_match": 0.3,
             },
         }
+    if isinstance(parsed.get("answer"), str):
+        parsed["answer"] = _strip_citation_urls(parsed["answer"])
+        parsed["answer"] = _fix_unbracketed_citations(parsed["answer"], len(chunks))
+    return parsed

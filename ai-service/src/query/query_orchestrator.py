@@ -207,6 +207,28 @@ def _load_schema_facts(document_ids: list[str]) -> list[dict]:
     return facts
 
 
+def _attach_warranty_classification(schema_facts: list[dict], target_docs: list[str]) -> None:
+    """Adds warranty_type ("standard"/"non_standard") onto each schema_facts
+    entry by document id, so the reasoner can answer "is this standard or
+    non-standard" from a hard fact instead of guessing from coverage text."""
+    if not schema_facts or not target_docs:
+        return
+    try:
+        with SessionLocal() as session:
+            rows = session.execute(
+                text("SELECT id, warranty_type FROM documents WHERE id = ANY(:ids::uuid[])"),
+                {"ids": target_docs},
+            ).fetchall()
+        types_by_id = {str(r[0]): r[1] for r in rows}
+    except Exception as exc:
+        logger.warning("Could not load warranty_type for documents %s", target_docs, exc_info=True)
+        return
+    for fact in schema_facts:
+        doc_id = fact.get("documentId")
+        if doc_id and doc_id in types_by_id:
+            fact["warranty_type"] = types_by_id[doc_id]
+
+
 async def answer_question(
     question: str,
     conversation_history: list[dict],
@@ -402,6 +424,7 @@ async def answer_question(
     # --- Schema-facts grounding ---
     target_docs = explicit_docs or _target_document_ids(chunks, document_id)
     schema_facts = _load_schema_facts(target_docs)
+    _attach_warranty_classification(schema_facts, target_docs)
     if schema_facts:
         logger.info(
             "Schema grounding: docs=%s source=%s",
@@ -414,6 +437,7 @@ async def answer_question(
         # Force-load schema facts for the scoped document so the reasoner gets
         # the full coverage code list, not just whatever chunk ranked first.
         schema_facts = _load_schema_facts([document_id])
+        _attach_warranty_classification(schema_facts, [document_id])
         if schema_facts:
             logger.info("Schema grounding seeded for document-level query: %s", document_id)
 

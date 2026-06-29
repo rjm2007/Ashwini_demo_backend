@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, Logger, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { QuerySessionEntity } from "./entities/query-session.entity";
@@ -17,6 +17,9 @@ export class QueryService {
 
   async createSession(userId: string, title?: string) {
     // This function creates a new query chat session for the current user.
+    if (!userId) {
+      throw new UnauthorizedException("Missing authenticated user context — cannot create a chat session.");
+    }
     const session = this.sessionRepository.create({
       userId,
       title: title || "New Chat",
@@ -27,11 +30,17 @@ export class QueryService {
 
   async listSessions(userId: string) {
     // This function lists all sessions for the user ordered by latest activity.
+    if (!userId) {
+      throw new UnauthorizedException("Missing authenticated user context.");
+    }
     return this.sessionRepository.find({ where: { userId }, order: { lastMessageAt: "DESC" } });
   }
 
   async getSession(sessionId: string, userId: string) {
     // This function returns one session and all its messages.
+    if (!userId) {
+      throw new UnauthorizedException("Missing authenticated user context.");
+    }
     const session = await this.sessionRepository.findOne({ where: { id: sessionId, userId } });
     if (!session) {
       throw new NotFoundException("Session not found");
@@ -45,6 +54,9 @@ export class QueryService {
 
   async deleteSession(sessionId: string, userId: string) {
     // This function deletes a session owned by the current user.
+    if (!userId) {
+      throw new UnauthorizedException("Missing authenticated user context.");
+    }
     const session = await this.sessionRepository.findOne({ where: { id: sessionId, userId } });
     if (!session) {
       throw new NotFoundException("Session not found");
@@ -61,6 +73,9 @@ export class QueryService {
     context?: Record<string, unknown>
   ) {
     // This function stores user message, calls AI answer API, and stores assistant response.
+    if (!userId) {
+      throw new UnauthorizedException("Missing authenticated user context — cannot send a message.");
+    }
     const session = await this.sessionRepository.findOne({ where: { id: sessionId, userId } });
     if (!session) {
       throw new NotFoundException("Session not found");

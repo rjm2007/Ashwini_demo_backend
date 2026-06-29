@@ -1,10 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { Request } from "express";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { RolesGuard } from "../../common/guards/roles.guard";
+import { UserRole } from "../../common/enums/user-role.enum";
 import { QueryService } from "./query.service";
 import { CreateSessionDto } from "./dto/create-session.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
 
 @Controller("query")
+@UseGuards(RolesGuard)
+@Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
 export class QueryController {
   constructor(private readonly queryService: QueryService) {}
 
