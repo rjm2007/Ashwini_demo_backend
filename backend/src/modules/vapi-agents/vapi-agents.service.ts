@@ -36,7 +36,7 @@ export class VapiAgentsService {
 
     let assistant: any;
     try {
-      assistant = await client.assistants.get(agent.assistantId);
+      assistant = await client.assistants.get(agent.assistantId as any);
     } catch (err: any) {
       this.logger.error(`Failed to fetch Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       throw new BadRequestException("Could not reach Vapi to read this agent's configuration.");
@@ -69,7 +69,7 @@ export class VapiAgentsService {
 
     let assistant: any;
     try {
-      assistant = await client.assistants.get(agent.assistantId);
+      assistant = await client.assistants.get(agent.assistantId as any);
     } catch (err: any) {
       this.logger.error(`Failed to fetch Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       throw new BadRequestException("Could not reach Vapi to read this agent's current configuration.");
@@ -88,7 +88,7 @@ export class VapiAgentsService {
     const updatedModel = { ...currentModel, messages };
 
     try {
-      await client.assistants.update(agent.assistantId, { model: updatedModel });
+      await client.assistants.update(agent.assistantId as any, { model: updatedModel } as any);
     } catch (err: any) {
       this.logger.error(`Failed to update Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       throw new BadRequestException(
