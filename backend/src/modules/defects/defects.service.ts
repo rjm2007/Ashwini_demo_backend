@@ -230,7 +230,7 @@ export class DefectsService {
 
   async transcribeVoiceToEnglish(file: Express.Multer.File): Promise<{ text: string }> {
     const form = new FormData();
-    form.append("file", new Blob([file.buffer], { type: file.mimetype }), file.originalname || "audio.webm");
+    form.append("file", new Blob([file.buffer as any], { type: file.mimetype }), file.originalname || "audio.webm");
 
     let res: Response;
     try {
