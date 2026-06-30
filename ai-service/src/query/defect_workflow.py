@@ -18,6 +18,7 @@ from .document_resolver import resolve_documents_by_make_model_year
 from .retriever import retrieve_chunks
 from ..database import SessionLocal
 from ..services.llm_service import LlmService
+from .reasoner import _strip_citation_urls
 
 logger = logging.getLogger(__name__)
 
@@ -265,10 +266,9 @@ def answer_followup_question(
         "follow_up_question": question,
     })
     out = llm.small_model_call(payload, _load_prompt("defect_followup.txt"), stage="defect_followup")
-    import re as _re
     j = _parse_json(out) or {}
     answer = j.get("answer") or "I don't have anything more to add on that — try asking about a specific coverage by name."
-    answer = _re.sub(r"\[(\d+)\]\(https?://[^)\s]*\)", lambda m: f"[{m.group(1)}]", answer)
+    answer = _strip_citation_urls(answer)
     return {
         "responseType": "answer",
         "answer": answer,
