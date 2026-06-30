@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { Request } from "express";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { RolesGuard } from "../../common/guards/roles.guard";
@@ -17,6 +18,16 @@ export class DefectsController {
   @Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
   async listEligibleDocuments() {
     return this.defectsService.listEligibleDocuments();
+  }
+
+  @Post("voice-translate")
+  @Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
+  @UseInterceptors(FileInterceptor("file"))
+  async voiceTranslate(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException("Missing audio file");
+    }
+    return this.defectsService.transcribeVoiceToEnglish(file);
   }
 
   @Get()

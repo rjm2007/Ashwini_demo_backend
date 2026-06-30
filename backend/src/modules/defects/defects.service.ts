@@ -227,4 +227,21 @@ export class DefectsService {
 
     return assistantMessage;
   }
+
+  async transcribeVoiceToEnglish(file: Express.Multer.File): Promise<{ text: string }> {
+    const form = new FormData();
+    form.append("file", new Blob([file.buffer], { type: file.mimetype }), file.originalname || "audio.webm");
+
+    let res: Response;
+    try {
+      res = await fetch(`${AI_SERVICE_URL}/voice/translate`, { method: "POST", body: form });
+    } catch (err: any) {
+      this.logger.error(`voice translate unreachable: ${err?.message ?? err}`);
+      throw new BadRequestException("Could not reach the voice transcription service.");
+    }
+    if (!res.ok) {
+      throw new BadRequestException(`Voice transcription failed (status ${res.status}).`);
+    }
+    return res.json();
+  }
 }
