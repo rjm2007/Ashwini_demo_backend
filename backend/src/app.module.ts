@@ -10,6 +10,7 @@ import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { SupportModule } from "./modules/support/support.module";
 import { CostModule } from "./modules/cost/cost.module";
 import { DefectsModule } from "./modules/defects/defects.module";
+import { VapiAgentsModule } from "./modules/vapi-agents/vapi-agents.module";
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { DefectsModule } from "./modules/defects/defects.module";
     DashboardModule,
     SupportModule,
     CostModule,
-    DefectsModule
+    DefectsModule,
+    VapiAgentsModule
   ]
 })
 export class AppModule implements NestModule {
