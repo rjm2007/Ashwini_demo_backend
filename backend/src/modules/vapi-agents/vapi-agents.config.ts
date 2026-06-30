@@ -16,15 +16,15 @@ export function getVapiAgents(): VapiAgentConfig[] {
   if (process.env.VAPI_AGENT_ASHWINI_ID) {
     agents.push({
       key: "ashwini",
-      name: process.env.VAPI_AGENT_ASHWINI_NAME || "Ashwini Agent",
-      assistantId: process.env.VAPI_AGENT_ASHWINI_ID
+      name: process.env.VAPI_AGENT_ASHWINI_NAME?.trim() || "Ashwini Agent",
+      assistantId: process.env.VAPI_AGENT_ASHWINI_ID.trim()
     });
   }
   if (process.env.VAPI_AGENT_ROHINI_ID) {
     agents.push({
       key: "rohini",
-      name: process.env.VAPI_AGENT_ROHINI_NAME || "Rohini Agent",
-      assistantId: process.env.VAPI_AGENT_ROHINI_ID
+      name: process.env.VAPI_AGENT_ROHINI_NAME?.trim() || "Rohini Agent",
+      assistantId: process.env.VAPI_AGENT_ROHINI_ID.trim()
     });
   }
   return agents;

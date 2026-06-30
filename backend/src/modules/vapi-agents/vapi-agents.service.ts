@@ -7,7 +7,7 @@ export class VapiAgentsService {
   private readonly logger = new Logger(VapiAgentsService.name);
 
   private getClient(): VapiClient {
-    const token = process.env.VAPI_PRIVATE_KEY;
+    const token = process.env.VAPI_PRIVATE_KEY?.trim();
     if (!token) {
       throw new BadRequestException("VAPI_PRIVATE_KEY is not configured on the server.");
     }
