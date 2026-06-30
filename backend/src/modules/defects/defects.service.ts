@@ -229,12 +229,22 @@ export class DefectsService {
   }
 
   async transcribeVoiceToEnglish(file: Express.Multer.File): Promise<{ text: string }> {
-    const form = new FormData();
-    form.append("file", new Blob([file.buffer as any], { type: file.mimetype }), file.originalname || "audio.webm");
-
+    // Sent as base64 inside a JSON body — same proven request pattern as
+    // callAi() above — NOT multipart/form-data. Node's native fetch() +
+    // FormData + Blob(buffer) for outgoing requests is unreliable in this
+    // Node version and was failing before the request ever left this
+    // process (zero incoming logs on the ai-service side proved this).
     let res: Response;
     try {
-      res = await fetch(`${AI_SERVICE_URL}/voice/translate`, { method: "POST", body: form });
+      res = await fetch(`${AI_SERVICE_URL}/voice/translate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audioBase64: file.buffer.toString("base64"),
+          filename: file.originalname || "audio.webm",
+          mimeType: file.mimetype || "audio/webm",
+        }),
+      });
     } catch (err: any) {
       this.logger.error(`voice translate unreachable: ${err?.message ?? err}`);
       throw new BadRequestException("Could not reach the voice transcription service.");
