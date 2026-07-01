@@ -7,6 +7,8 @@ import { QueryMessageEntity } from "../modules/query/entities/query-message.enti
 import { DefectEntity } from "../modules/defects/entities/defect.entity";
 import { DefectMessageEntity } from "../modules/defects/entities/defect-message.entity";
 import { SupportTicketEntity } from "../modules/support/entities/support-ticket.entity";
+import { AgentPromptEntity } from "../modules/vapi-agents/entities/agent-prompt.entity";
+import { CallLogEntity } from "../modules/calls/entities/call-log.entity";
 
 export function buildDatabaseConfig(): TypeOrmModuleOptions {
   // This function builds TypeORM configuration from env variables.
@@ -21,7 +23,9 @@ export function buildDatabaseConfig(): TypeOrmModuleOptions {
       QueryMessageEntity,
       DefectEntity,
       DefectMessageEntity,
-      SupportTicketEntity
+      SupportTicketEntity,
+      AgentPromptEntity,
+      CallLogEntity
     ],
     synchronize: false
   };
