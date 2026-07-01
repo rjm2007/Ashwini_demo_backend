@@ -1,10 +1,18 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { VapiClient } from "@vapi-ai/server-sdk";
 import { getVapiAgentByKey, getVapiAgents, VapiAgentConfig } from "./vapi-agents.config";
+import { AgentPromptEntity } from "./entities/agent-prompt.entity";
 
 @Injectable()
 export class VapiAgentsService {
   private readonly logger = new Logger(VapiAgentsService.name);
+
+  constructor(
+    @InjectRepository(AgentPromptEntity)
+    private readonly promptsRepo: Repository<AgentPromptEntity>
+  ) {}
 
   private getClient(): VapiClient {
     const token = process.env.VAPI_PRIVATE_KEY?.trim();
@@ -29,22 +37,39 @@ export class VapiAgentsService {
     return getVapiAgents().map(({ key, name, assistantId }) => ({ key, name, assistantId }));
   }
 
-  /** Reads the assistant's CURRENT system prompt from its live Vapi config. */
+  /**
+   * Reads the system prompt from Postgres FIRST — this is now the source of
+   * truth for the Settings UI, so it no longer breaks when Vapi's GET
+   * /assistant/{id} is slow, empty, or briefly unreachable. Only falls back
+   * to a live Vapi read (and backfills Postgres with it) if no row exists
+   * yet for this agent — e.g. right after this feature is first deployed,
+   * before the migration seed has run.
+   */
   async getSystemPrompt(key: string): Promise<{ prompt: string }> {
+    this.requireAgent(key);
+
+    const row = await this.promptsRepo.findOne({ where: { agentKey: key } });
+    if (row) {
+      return { prompt: row.prompt };
+    }
+
+    this.logger.warn(`No agent_prompts row for "${key}" yet — falling back to a live Vapi read.`);
     const agent = this.requireAgent(key);
     const client = this.getClient();
-
     let assistant: any;
     try {
       assistant = await client.assistants.get(agent.assistantId as any);
     } catch (err: any) {
       this.logger.error(`Failed to fetch Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
-      throw new BadRequestException("Could not reach Vapi to read this agent's configuration.");
+      return { prompt: "" };
     }
-
     const messages: any[] = assistant?.model?.messages || [];
     const systemMessage = messages.find((m) => m.role === "system");
-    return { prompt: systemMessage?.content || "" };
+    const prompt = systemMessage?.content || "";
+    if (prompt) {
+      await this.promptsRepo.save(this.promptsRepo.create({ agentKey: key, prompt }));
+    }
+    return { prompt };
   }
 
   /**
@@ -95,6 +120,13 @@ export class VapiAgentsService {
         err?.message || "Could not update this agent's prompt on Vapi. The prompt was not saved."
       );
     }
+
+    // Postgres is the source of truth the Settings UI reads from — write
+    // AFTER the Vapi push succeeds, so a failed push never leaves Postgres
+    // and Vapi disagreeing about what the "live" prompt is.
+    await this.promptsRepo.save(
+      this.promptsRepo.create({ agentKey: key, prompt: newPrompt })
+    );
 
     this.logger.log(`Updated system prompt for agent "${key}" (assistant ${agent.assistantId})`);
     return { success: true };

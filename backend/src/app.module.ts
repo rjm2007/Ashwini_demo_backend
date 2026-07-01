@@ -11,6 +11,7 @@ import { SupportModule } from "./modules/support/support.module";
 import { CostModule } from "./modules/cost/cost.module";
 import { DefectsModule } from "./modules/defects/defects.module";
 import { VapiAgentsModule } from "./modules/vapi-agents/vapi-agents.module";
+import { CallsModule } from "./modules/calls/calls.module";
 
 @Module({
   imports: [
@@ -24,12 +25,15 @@ import { VapiAgentsModule } from "./modules/vapi-agents/vapi-agents.module";
     SupportModule,
     CostModule,
     DefectsModule,
-    VapiAgentsModule
+    VapiAgentsModule,
+    CallsModule
   ]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    // This function applies auth middleware to all endpoints except login.
-    consumer.apply(AuthMiddleware).exclude("auth/login").forRoutes("*");
+    // This function applies auth middleware to all endpoints except login
+    // and the public Vapi webhook (which cannot carry our JWT and is
+    // verified separately via the x-vapi-secret header in CallsWebhookController).
+    consumer.apply(AuthMiddleware).exclude("auth/login", "calls/webhook").forRoutes("*");
   }
 }
