@@ -1,7 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 import { DatabaseModule } from "./database/database.module";
 import { AuthMiddleware } from "./common/middleware/auth.middleware";
+import { RolesGuard } from "./common/guards/roles.guard";
 import { AuthModule } from "./modules/auth/auth.module";
 import { DocumentsModule } from "./modules/documents/documents.module";
 import { ReviewModule } from "./modules/review/review.module";
@@ -12,6 +14,7 @@ import { CostModule } from "./modules/cost/cost.module";
 import { DefectsModule } from "./modules/defects/defects.module";
 import { VapiAgentsModule } from "./modules/vapi-agents/vapi-agents.module";
 import { CallsModule } from "./modules/calls/calls.module";
+import { AppSettingsModule } from "./modules/app-settings/app-settings.module";
 
 @Module({
   imports: [
@@ -26,7 +29,14 @@ import { CallsModule } from "./modules/calls/calls.module";
     CostModule,
     DefectsModule,
     VapiAgentsModule,
-    CallsModule
+    CallsModule,
+    AppSettingsModule
+  ],
+  providers: [
+    // Applied to EVERY route. Routes are authenticated by default and must
+    // opt out explicitly with @Public(); previously any controller method
+    // without @Roles() was reachable with no token at all.
+    { provide: APP_GUARD, useClass: RolesGuard }
   ]
 })
 export class AppModule implements NestModule {

@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { VapiClient } from "@vapi-ai/server-sdk";
 import { getVapiAgentByKey, getVapiAgents, VapiAgentConfig } from "./vapi-agents.config";
 import { AgentPromptEntity } from "./entities/agent-prompt.entity";
+import { AppSettingsService } from "../app-settings/app-settings.service";
 
 @Injectable()
 export class VapiAgentsService {
@@ -11,15 +12,27 @@ export class VapiAgentsService {
 
   constructor(
     @InjectRepository(AgentPromptEntity)
-    private readonly promptsRepo: Repository<AgentPromptEntity>
+    private readonly promptsRepo: Repository<AgentPromptEntity>,
+    private readonly appSettings: AppSettingsService
   ) {}
 
-  private getClient(): VapiClient {
-    const token = process.env.VAPI_PRIVATE_KEY?.trim();
+  /**
+   * Resolved per call rather than cached: a key saved in Settings > API Keys
+   * must take effect on the very next request, with no restart.
+   */
+  private async getClient(): Promise<VapiClient> {
+    const token = await this.appSettings.resolve("VAPI_PRIVATE_KEY");
     if (!token) {
-      throw new BadRequestException("VAPI_PRIVATE_KEY is not configured on the server.");
+      throw new BadRequestException(
+        "No Vapi private key is configured. Add one in Settings > API Keys, or set VAPI_PRIVATE_KEY."
+      );
     }
     return new VapiClient({ token });
+  }
+
+  /** The browser-side Vapi key, resolved database-first. Not a secret. */
+  async getPublicConfig(): Promise<{ publicKey: string }> {
+    return { publicKey: await this.appSettings.resolve("VAPI_PUBLIC_KEY") };
   }
 
   private requireAgent(key: string): VapiAgentConfig {
@@ -55,7 +68,7 @@ export class VapiAgentsService {
 
     this.logger.warn(`No agent_prompts row for "${key}" yet — falling back to a live Vapi read.`);
     const agent = this.requireAgent(key);
-    const client = this.getClient();
+    const client = await this.getClient();
     let assistant: any;
     try {
       assistant = await client.assistants.get(agent.assistantId as any);
@@ -90,7 +103,7 @@ export class VapiAgentsService {
       throw new BadRequestException("System prompt cannot be empty.");
     }
     const agent = this.requireAgent(key);
-    const client = this.getClient();
+    const client = await this.getClient();
 
     let assistant: any;
     try {
