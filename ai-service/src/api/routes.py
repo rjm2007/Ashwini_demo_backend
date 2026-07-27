@@ -100,22 +100,59 @@ async def get_session_cost(session_id: str) -> dict:
 
 @router.get("/cost/daily")
 async def get_daily_cost() -> dict:
+    """Spend summary for the dashboard.
+
+    Returns today's total, the month to date, and the average cost of an
+    answered chat query, plus today's breakdown by stage.
+
+    The snake_case keys are what the dashboard renders. This endpoint used to
+    return only ``totalUsd``/``byStage``, which no caller read — the dashboard
+    asked for ``today_usd``/``month_usd``/``avg_per_query_usd``, got undefined
+    for every one of them, and therefore displayed $0.00 no matter how much had
+    actually been spent. Both shapes are returned now so nothing that reads the
+    old keys breaks.
+    """
     with SessionLocal() as session:
-        row = session.execute(
+        totals = session.execute(
             text(
-                "SELECT COALESCE(SUM(usd_cost), 0) FROM cost_events "
-                "WHERE created_at >= date_trunc('day', NOW())"
+                "SELECT "
+                "  COALESCE(SUM(usd_cost) FILTER (WHERE created_at >= date_trunc('day', NOW())), 0) AS today, "
+                "  COALESCE(SUM(usd_cost) FILTER (WHERE created_at >= date_trunc('month', NOW())), 0) AS month "
+                "FROM cost_events"
             )
         ).first()
+
         rows = session.execute(
             text(
                 "SELECT stage, SUM(usd_cost) FROM cost_events "
-                "WHERE created_at >= date_trunc('day', NOW()) GROUP BY stage"
+                "WHERE created_at >= date_trunc('day', NOW()) GROUP BY stage ORDER BY 2 DESC"
             )
         ).fetchall()
+
+        # "Per query" = per answered question, so assistant replies are the
+        # denominator. Guarded with NULLIF so an empty table yields 0, not a
+        # division error.
+        avg_row = session.execute(
+            text(
+                "SELECT COALESCE("
+                "  (SELECT SUM(usd_cost) FROM cost_events) "
+                "  / NULLIF((SELECT COUNT(*) FROM query_messages WHERE role = 'assistant'), 0)"
+                ", 0)"
+            )
+        ).first()
+
+    today = float(totals[0] if totals else 0)
+    month = float(totals[1] if totals else 0)
+    by_stage = {r[0]: float(r[1]) for r in rows}
+
     return {
-        "totalUsd": float(row[0] if row else 0),
-        "byStage": {r[0]: float(r[1]) for r in rows},
+        "today_usd": today,
+        "month_usd": month,
+        "avg_per_query_usd": float(avg_row[0] if avg_row else 0),
+        "by_stage": by_stage,
+        # Retained for backward compatibility with any older caller.
+        "totalUsd": today,
+        "byStage": by_stage,
     }
 
 
