@@ -71,7 +71,7 @@ export class VapiAgentsService {
     const client = await this.getClient();
     let assistant: any;
     try {
-      assistant = await client.assistants.get(agent.assistantId as any);
+      assistant = await client.assistants.get({ id: agent.assistantId });
     } catch (err: any) {
       this.logger.error(`Failed to fetch Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       return { prompt: "" };
@@ -97,6 +97,12 @@ export class VapiAgentsService {
    * assistant's CURRENT full model object first, mutates only the system
    * message's content inside it, and writes the entire model object back.
    * Do not "simplify" this into a direct partial PATCH.
+   *
+   * The SDK takes ONE request object and splits it as
+   * `const { id } = request, body = rest`, so the assistant id belongs inside
+   * that object. Passing it as a bare positional string (previously silenced
+   * with `as any`) left id undefined, produced a request to
+   * /assistant/undefined, and made every save fail with "Status code: 400".
    */
   async updateSystemPrompt(key: string, newPrompt: string): Promise<{ success: true }> {
     if (!newPrompt || !newPrompt.trim()) {
@@ -107,7 +113,7 @@ export class VapiAgentsService {
 
     let assistant: any;
     try {
-      assistant = await client.assistants.get(agent.assistantId as any);
+      assistant = await client.assistants.get({ id: agent.assistantId });
     } catch (err: any) {
       this.logger.error(`Failed to fetch Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       throw new BadRequestException("Could not reach Vapi to read this agent's current configuration.");
@@ -126,7 +132,7 @@ export class VapiAgentsService {
     const updatedModel = { ...currentModel, messages };
 
     try {
-      await client.assistants.update(agent.assistantId as any, { model: updatedModel } as any);
+      await client.assistants.update({ id: agent.assistantId, model: updatedModel });
     } catch (err: any) {
       this.logger.error(`Failed to update Vapi assistant ${agent.assistantId}: ${err?.message ?? err}`);
       throw new BadRequestException(
