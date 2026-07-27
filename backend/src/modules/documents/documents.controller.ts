@@ -45,6 +45,7 @@ export class DocumentsController {
   }
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
   async list(@Query() query: ListDocumentsDto) {
     // This function returns paginated documents.
     return this.documentsService.listDocuments(query);
@@ -63,12 +64,14 @@ export class DocumentsController {
   }
 
   @Get(":id")
+  @Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
   async getById(@Param("id") id: string) {
     // This function returns a single document by id.
     return this.documentsService.getDocument(id);
   }
 
   @Get(":id/pdf-url")
+  @Roles(UserRole.ADMIN, UserRole.REVIEWER, UserRole.USER)
   async getPdfUrl(@Param("id") id: string) {
     // This function returns signed PDF URL.
     return this.documentsService.getPdfSignedUrl(id);

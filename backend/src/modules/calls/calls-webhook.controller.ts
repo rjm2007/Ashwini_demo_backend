@@ -1,5 +1,6 @@
 import { Body, Controller, ForbiddenException, Headers, Logger, Post } from "@nestjs/common";
 import { CallsService } from "./calls.service";
+import { Public } from "../../common/decorators/public.decorator";
 
 /**
  * Public endpoint — Vapi posts here directly, so it CANNOT carry our JWT.
@@ -14,6 +15,9 @@ export class CallsWebhookController {
 
   constructor(private readonly callsService: CallsService) {}
 
+  // Anonymous by necessity: Vapi posts here and cannot carry our JWT.
+  // Authenticity comes from the x-vapi-secret check below instead.
+  @Public()
   @Post("webhook")
   async handleWebhook(@Body() body: any, @Headers("x-vapi-secret") secret: string) {
     const expected = process.env.VAPI_WEBHOOK_SECRET?.trim();

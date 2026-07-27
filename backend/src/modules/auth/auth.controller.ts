@@ -2,11 +2,14 @@ import { Controller, Get, Post, Body, Req, UnauthorizedException } from "@nestjs
 import { Request } from "express";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
+import { Public } from "../../common/decorators/public.decorator";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Necessarily anonymous — this is where callers obtain a token.
+  @Public()
   @Post("login")
   async login(@Body() dto: LoginDto) {
     // This function handles login and returns token plus user profile.
